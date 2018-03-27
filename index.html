@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>IntroHommia :D</title>
+    <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
+</head>
+
+<body>
+
+    <script type="text/javascript">
+
+        window.onload = function () {
+            var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+            var ySpeed = 4;
+            var xSpeed = 0;
+
+            function preload() {
+                game.load.image('text', 'assets/introText.png');
+                game.load.image('text2', 'assets/introText2.png');
+                game.load.image('text3', 'assets/introText3.png');
+                game.load.audio('music', 'assets/introSong.wav');
+            }
+
+            function create() {
+                game.stage.setBackgroundColor(0xd3d3d3);
+                game.focusLoss = false;
+                InstantiateEmitter();
+                InstantiateText();
+                StartLoopingMusic();
+
+
+                function InstantiateEmitter() {
+                    var emitter = game.add.emitter(game.world.centerX, 0, 400, 10);
+                    emitter.width = game.world.width;
+                    emitter.makeParticles(['text','text2', 'text3']);
+                    emitter.minParticleScale = 0.2;
+                    emitter.maxParticleScale = 0.5;
+                    emitter.setYSpeed(300, 500);
+                    emitter.setXSpeed(-5, 5);
+                    emitter.minRotation = 0;
+                    emitter.maxRotation = 0;
+                    emitter.start(false, 1600, 50, 0);
+                }
+
+                function InstantiateText() {
+                    var style = {
+                        font: '75px Georgia, serif', fill: '#ff00ff', fontWeight: 'bold'
+                    }
+                    game.text = game.add.text(0, 0, 'IntroHommia', style);
+                    game.text.x = game.world.width / 2 - game.text.width / 2;
+                    game.text.stroke = '#000000';
+                    game.text.strokeThickness = 8;
+                    game.text.fill = '#43d637';
+                }
+
+                function StartLoopingMusic() {
+                    music = game.add.audio('music');
+                    music.loop = true;
+                    music.play();
+                }
+            }
+
+            function update() {
+                game.text.y += ySpeed;
+                game.text.x += xSpeed;
+
+                var distanceFromCenter = CalculateDistanceFromCenter();
+                game.text.setShadow(distanceFromCenter.x, distanceFromCenter.y, 'rgba(0, 0, 0, 0.6)', 10);
+
+                if (game.text.y > game.world.height)
+                    RandomizeNewStartPosAndDirection();
+
+                else if (XOutOfBounds(game.text.x))
+                    xSpeed = -xSpeed;
+
+                function CalculateDistanceFromCenter() {
+                    var _y = (game.text.y - game.world.centerY + game.text.height / 2) / 20;
+                    var _x = (game.text.x - game.world.centerX + game.text.width / 2) / 12;
+
+                    return { x: _x, y: _y };
+                }
+                function RandomizeNewStartPosAndDirection() {
+                    game.text.y = 0 - game.text.height;
+                    game.text.x = Math.random() * (game.world.width - game.text.width);
+                    xSpeed = Math.random() * 9 - 4;
+                }
+
+                function XOutOfBounds(x) {
+                    if (x > game.world.width - game.text.width) {
+                        return true;
+                    } else if (game.text.x < 0) {
+                        return true;
+                    }
+                    return false;
+                }
+
+            }
+
+        };
+
+    </script>
+
+</body>
+
+</html>
